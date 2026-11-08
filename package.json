@@ -1,0 +1,13 @@
+{
+  "name": "bus-booking-system",
+  "version": "1.0.0",
+  "description": "Full-Stack Bus Booking Management System (MERN)",
+  "scripts": {
+    "seed": "npm --prefix backend run seed",
+    "test": "npm --prefix backend test",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev"
+  },
+  "author": "Ayan Anwar",
+  "license": "MIT"
+}
