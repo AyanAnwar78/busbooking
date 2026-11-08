@@ -97,6 +97,7 @@ Run the backend server:
 npm start
 # Server runs on http://localhost:5000
 # Health check available at: http://localhost:5000/api/health
+# Interactive Swagger UI: http://localhost:5000/api-docs
 ```
 
 ### 3. Frontend Setup
@@ -169,7 +170,8 @@ busbooking/
 │   ├── ER_DIAGRAM.md          # Entity-Relationship diagram and schema specs
 │   ├── ARCHITECTURE.md        # Concurrency design, RBAC model, layer architecture
 │   ├── API_DOCUMENTATION.md   # Complete REST API contracts
-│   └── TECHNICAL_REPORT.md    # Technical report for assessment submission
+│   ├── TECHNICAL_REPORT.md    # Technical report for assessment submission
+│   └── INTERVIEW_WALKTHROUGH_AND_DEBUGGING_PREP.md # 3-5 min video script & live Q&A guide
 └── README.md
 ```
 
@@ -183,7 +185,10 @@ busbooking/
 - [x] 5 Acceptance tests implemented and automated (`npm test`).
 - [x] ER diagram and Architecture documentation in `/docs`.
 - [x] Technical report explaining design choices and concurrency handling.
+- [x] Interactive OpenAPI / Swagger UI live at `/api-docs`.
+- [x] 3–5 min video walkthrough script and 15-min interview debugging cheat sheet in `docs/`.
 - [x] Demo user credentials documented and accessible with 1-click in the UI.
 
 ---
 © 2026 BusGo Management System — All rights reserved.
+

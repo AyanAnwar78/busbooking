@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
@@ -29,6 +31,10 @@ app.get('/api/health', (req, res) => {
     service: 'Bus Booking Management System API'
   });
 });
+
+// Interactive Swagger UI documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
 
 // API Routes
 app.use('/api/auth', authRoutes);

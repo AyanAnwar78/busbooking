@@ -54,3 +54,4 @@ The system delivers end-to-end operational journeys for both customer passengers
 ## 4. Known Limitations & Future Improvements
 1. **Live Payment Gateway**: Currently operates with simulated payment confirmation (`paymentStatus: 'PAID'`). Integration with Stripe or Razorpay webhooks can be plugged directly into `bookingService`.
 2. **Real-time Push Notifications**: WebSockets (Socket.io) can be introduced to push live seat reservation visual flashes to clients viewing the seat map simultaneously.
+

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/client';
-import { FileSpreadsheet, ArrowLeft, Printer, Search, Bus, CheckCircle2, User, Phone } from 'lucide-react';
+import { FileSpreadsheet, ArrowLeft, Printer, Download, Search, Bus, CheckCircle2, User, Phone } from 'lucide-react';
 
 export default function ManifestPage() {
   const { tripId } = useParams();
@@ -9,6 +9,22 @@ export default function ManifestPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const handleExportCSV = () => {
+    if (!filteredPassengers.length) return;
+    const headers = 'Seat Number,Passenger Name,Age,Gender,PNR,Boarding Point,Dropping Point,Booker Name,Contact Phone,Status';
+    const rows = filteredPassengers.map(p =>
+      `"${p.seatNumber}","${p.passengerName}","${p.age}","${p.gender}","${p.pnr}","${p.boardingPoint}","${p.droppingPoint}","${p.bookerName}","${p.contactPhone}","${p.status}"`
+    );
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `manifest_${data.trip.tripCode}_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     const fetchManifest = async () => {
@@ -69,13 +85,23 @@ export default function ManifestPage() {
           <span>Back to Fleet Dashboard</span>
         </Link>
 
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition shadow-sm"
-        >
-          <Printer className="w-4 h-4" />
-          <span>Print Passenger Manifest</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export CSV</span>
+          </button>
+
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition shadow-sm"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Print Passenger Manifest</span>
+          </button>
+        </div>
       </div>
 
       {/* Manifest Trip Header Card */}

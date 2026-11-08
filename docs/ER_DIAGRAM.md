@@ -127,3 +127,4 @@ erDiagram
    - `Trip`: `{ route: 1, departureTime: 1, status: 1 }`
    - `Booking`: `{ pnr: 1 }` (Unique), `{ user: 1, createdAt: -1 }`, `{ trip: 1, status: 1 }`
    - `AuditLog`: `{ entityType: 1, entityId: 1 }`, `{ timestamp: -1 }`
+

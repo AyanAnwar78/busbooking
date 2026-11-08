@@ -116,3 +116,4 @@ if (!updatedTrip) {
 
 **Outcome**: Exactly one request locks the seat and creates the booking (`201 Created`). The competing request receives `null` from `findOneAndUpdate` and immediately returns `409 Conflict`.
 This behavior is verified in automated acceptance test #2.
+
