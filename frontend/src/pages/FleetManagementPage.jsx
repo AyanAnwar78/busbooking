@@ -206,10 +206,11 @@ export default function FleetManagementPage() {
                   required
                   value={operatorId}
                   onChange={(e) => setOperatorId(e.target.value)}
-                  className="w-full text-xs font-medium px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
+                  <option value="" disabled>-- Select Fleet Operator --</option>
                   {operators.map((opt) => (
-                    <option key={opt._id} value={opt._id}>
+                    <option key={opt._id} value={opt._id} className="text-slate-800 font-semibold py-1">
                       {opt.name} ({opt.licenseNumber || 'Licensed'})
                     </option>
                   ))}
@@ -222,7 +223,7 @@ export default function FleetManagementPage() {
                   <select
                     value={busType}
                     onChange={(e) => setBusType(e.target.value)}
-                    className="w-full text-xs font-medium px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                   >
                     <option value="AC Seater (2+2)">AC Seater (2+2)</option>
                     <option value="AC Sleeper (2+1)">AC Sleeper (2+1)</option>
@@ -289,3 +290,4 @@ export default function FleetManagementPage() {
     </div>
   );
 }
+

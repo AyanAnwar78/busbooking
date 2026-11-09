@@ -43,6 +43,27 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+// Optional authentication - populates req.user if token is present, continues otherwise
+const optionalAuth = async (req, res, next) => {
+  try {
+    let token = null;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    if (token) {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const user = await User.findById(decoded.id).select('-password');
+      if (user) req.user = user;
+    }
+    next();
+  } catch (error) {
+    next();
+  }
+};
+
 // Restrict to specified roles
 const authorize = (...roles) => {
   return (req, res, next) => {
@@ -56,5 +77,5 @@ const authorize = (...roles) => {
   };
 };
 
-module.exports = { authenticate, authorize, JWT_SECRET };
+module.exports = { authenticate, optionalAuth, authorize, JWT_SECRET };
 

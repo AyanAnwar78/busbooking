@@ -281,10 +281,11 @@ export default function SeatSelectPage() {
                   required
                   value={selectedBoarding}
                   onChange={(e) => setSelectedBoarding(e.target.value)}
-                  className="w-full text-xs font-medium px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
+                  <option value="" disabled>-- Select Boarding Point --</option>
                   {trip.route?.boardingPoints?.map((bp, i) => (
-                    <option key={i} value={bp.name}>
+                    <option key={i} value={bp.name} className="text-slate-800 font-semibold py-1">
                       {bp.name} {bp.landmark ? `(${bp.landmark})` : ''}
                     </option>
                   ))}
@@ -299,10 +300,11 @@ export default function SeatSelectPage() {
                   required
                   value={selectedDropping}
                   onChange={(e) => setSelectedDropping(e.target.value)}
-                  className="w-full text-xs font-medium px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
+                  <option value="" disabled>-- Select Dropping Point --</option>
                   {trip.route?.droppingPoints?.map((dp, i) => (
-                    <option key={i} value={dp.name}>
+                    <option key={i} value={dp.name} className="text-slate-800 font-semibold py-1">
                       {dp.name} {dp.landmark ? `(${dp.landmark})` : ''}
                     </option>
                   ))}
@@ -359,7 +361,7 @@ export default function SeatSelectPage() {
                             <select
                               value={p.gender || 'Male'}
                               onChange={(e) => handlePassengerChange(seatNo, 'gender', e.target.value)}
-                              className="w-full text-xs px-2 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                              className="w-full text-xs font-semibold text-slate-800 px-2 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white cursor-pointer"
                             >
                               <option value="Male">Male</option>
                               <option value="Female">Female</option>

@@ -94,7 +94,7 @@ exports.getOccupancySummary = async (req, res, next) => {
     if (operatorId) filter.operator = operatorId;
     if (routeId) filter.route = routeId;
 
-    if (req.user.role === 'operator' && req.user.operator) {
+    if (req.user && req.user.role === 'operator' && req.user.operator) {
       filter.operator = req.user.operator;
     }
 

@@ -252,7 +252,7 @@ exports.getAllTrips = async (req, res, next) => {
     if (operatorId) filter.operator = operatorId;
 
     // If operator role, restrict to their operator id
-    if (req.user.role === 'operator' && req.user.operator) {
+    if (req.user && req.user.role === 'operator' && req.user.operator) {
       filter.operator = req.user.operator;
     }
 

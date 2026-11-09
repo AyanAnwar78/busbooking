@@ -87,7 +87,7 @@ exports.createBus = async (req, res, next) => {
 exports.getBuses = async (req, res, next) => {
   try {
     const filter = { isActive: true };
-    if (req.user.role === 'operator' && req.user.operator) {
+    if (req.user && req.user.role === 'operator' && req.user.operator) {
       filter.operator = req.user.operator;
     }
 

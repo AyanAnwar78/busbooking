@@ -8,3 +8,4 @@ router.get('/:id', operatorController.getOperatorById);
 router.post('/', authenticate, authorize('admin'), operatorController.createOperator);
 
 module.exports = router;
+

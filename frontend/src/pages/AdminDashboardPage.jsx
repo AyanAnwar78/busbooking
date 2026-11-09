@@ -37,19 +37,21 @@ export default function AdminDashboardPage() {
     setLoading(true);
     try {
       const [statsRes, occRes, busRes, routeRes] = await Promise.all([
-        api.get('/reports/dashboard'),
-        api.get('/reports/occupancy'),
-        api.get('/buses'),
-        api.get('/routes')
+        api.get('/reports/dashboard').catch(() => ({ data: { stats: null } })),
+        api.get('/reports/occupancy').catch(() => ({ data: null })),
+        api.get('/buses').catch(() => ({ data: { buses: [] } })),
+        api.get('/routes').catch(() => ({ data: { routes: [] } }))
       ]);
 
-      setStats(statsRes.data.stats);
-      setOccupancyData(occRes.data);
-      setBuses(busRes.data.buses || []);
-      setRoutes(routeRes.data.routes || []);
+      setStats(statsRes.data?.stats || null);
+      setOccupancyData(occRes.data || null);
+      const loadedBuses = busRes.data?.buses || [];
+      const loadedRoutes = routeRes.data?.routes || [];
+      setBuses(loadedBuses);
+      setRoutes(loadedRoutes);
 
-      if (busRes.data.buses?.length > 0) setSelectedBus(busRes.data.buses[0]._id);
-      if (routeRes.data.routes?.length > 0) setSelectedRoute(routeRes.data.routes[0]._id);
+      if (loadedBuses.length > 0 && !selectedBus) setSelectedBus(loadedBuses[0]._id);
+      if (loadedRoutes.length > 0 && !selectedRoute) setSelectedRoute(loadedRoutes[0]._id);
     } catch (err) {
       console.error('Failed to load dashboard:', err);
     } finally {
@@ -284,14 +286,18 @@ export default function AdminDashboardPage() {
                   required
                   value={selectedBus}
                   onChange={(e) => setSelectedBus(e.target.value)}
-                  className="w-full text-xs font-medium px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
+                  <option value="" disabled>-- Select a Vehicle from Fleet --</option>
                   {buses.map((b) => (
-                    <option key={b._id} value={b._id}>
-                      {b.busNumber} ({b.busType}) - {b.totalSeats} seats
+                    <option key={b._id} value={b._id} className="text-slate-800 font-semibold py-1">
+                      {b.busNumber} • {b.busType} ({b.totalSeats} seats)
                     </option>
                   ))}
                 </select>
+                {buses.length === 0 && (
+                  <p className="text-[11px] text-amber-600 mt-1 font-medium">No active buses found in fleet.</p>
+                )}
               </div>
 
               <div>
@@ -300,14 +306,18 @@ export default function AdminDashboardPage() {
                   required
                   value={selectedRoute}
                   onChange={(e) => setSelectedRoute(e.target.value)}
-                  className="w-full text-xs font-medium px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
+                  <option value="" disabled>-- Select Route Corridor --</option>
                   {routes.map((r) => (
-                    <option key={r._id} value={r._id}>
-                      {r.origin} to {r.destination} ({r.distanceKm} km, {Math.floor(r.estimatedDurationMinutes / 60)}h)
+                    <option key={r._id} value={r._id} className="text-slate-800 font-semibold py-1">
+                      {r.origin} → {r.destination} ({r.distanceKm} km, {Math.floor(r.estimatedDurationMinutes / 60)}h)
                     </option>
                   ))}
                 </select>
+                {routes.length === 0 && (
+                  <p className="text-[11px] text-amber-600 mt-1 font-medium">No active routes found.</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">

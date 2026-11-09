@@ -193,7 +193,7 @@ export default function OperatorTripsPage() {
                         disabled={updatingId === trip._id}
                         value={trip.status}
                         onChange={(e) => handleStatusChange(trip._id, e.target.value)}
-                        className="text-[11px] font-semibold px-2 py-1 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="text-xs font-bold text-slate-800 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                       >
                         <option value="SCHEDULED">SCHEDULED</option>
                         <option value="BOARDING">BOARDING</option>
@@ -222,3 +222,4 @@ export default function OperatorTripsPage() {
     </div>
   );
 }
+
