@@ -51,13 +51,36 @@ export default function Navbar() {
             )}
 
             {isOperator && (
-              <Link
-                to="/admin"
-                className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 px-3 py-2 rounded-lg transition"
-              >
-                <LayoutDashboard className="w-4 h-4 text-emerald-600" />
-                <span>Operator Portal</span>
-              </Link>
+              <div className="flex items-center gap-1">
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg transition"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Dashboard</span>
+                </Link>
+
+                <Link
+                  to="/operator/trips"
+                  className="hidden md:inline-flex text-xs font-semibold text-slate-600 hover:text-emerald-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition"
+                >
+                  Schedules
+                </Link>
+
+                <Link
+                  to="/operator/buses"
+                  className="hidden md:inline-flex text-xs font-semibold text-slate-600 hover:text-emerald-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition"
+                >
+                  Fleet
+                </Link>
+
+                <Link
+                  to="/operator/routes"
+                  className="hidden md:inline-flex text-xs font-semibold text-slate-600 hover:text-emerald-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition"
+                >
+                  Routes
+                </Link>
+              </div>
             )}
 
             {/* Auth section */}

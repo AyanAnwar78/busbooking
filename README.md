@@ -73,7 +73,15 @@ git clone https://github.com/AyanAnwar78/busbooking.git
 cd busbooking
 ```
 
-### 2. Backend Setup
+### Single-Command Start (Root)
+To run both backend and frontend concurrently with a single command from the project root:
+```bash
+npm run dev
+# Starts backend on http://localhost:5000 and frontend on http://localhost:5173
+```
+
+### Manual Individual Setup
+#### 1. Backend Setup
 ```bash
 cd backend
 npm install
@@ -100,7 +108,7 @@ npm start
 # Interactive Swagger UI: http://localhost:5000/api-docs
 ```
 
-### 3. Frontend Setup
+#### 2. Frontend Setup
 In a new terminal window:
 ```bash
 cd frontend
