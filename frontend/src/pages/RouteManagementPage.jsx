@@ -10,8 +10,11 @@ export default function RouteManagementPage() {
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Form states
+  const [cities, setCities] = useState([]);
   const [origin, setOrigin] = useState('');
+  const [customOrigin, setCustomOrigin] = useState('');
   const [destination, setDestination] = useState('');
+  const [customDestination, setCustomDestination] = useState('');
   const [distanceKm, setDistanceKm] = useState(300);
   const [estimatedDurationMinutes, setEstimatedDurationMinutes] = useState(360);
 
@@ -26,8 +29,19 @@ export default function RouteManagementPage() {
   const fetchRoutes = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/routes');
-      setRoutes(res.data.routes || []);
+      const [routeRes, cityRes] = await Promise.all([
+        api.get('/routes'),
+        api.get('/routes/cities').catch(() => ({ data: { cities: [] } }))
+      ]);
+      setRoutes(routeRes.data.routes || []);
+      const loadedCities = cityRes.data?.cities || [];
+      setCities(loadedCities);
+      if (loadedCities.length > 1 && !origin) {
+        setOrigin(loadedCities[0]);
+        setDestination(loadedCities[1]);
+        setBoardingPoints([{ name: `${loadedCities[0]} Main Bus Terminal`, landmark: 'Platform 1', timeOffsetMinutes: 0 }]);
+        setDroppingPoints([{ name: `${loadedCities[1]} City Hub`, landmark: 'Central Station', timeOffsetMinutes: 360 }]);
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load routes');
     } finally {
@@ -69,7 +83,18 @@ export default function RouteManagementPage() {
 
   const handleCreateRoute = async (e) => {
     e.preventDefault();
-    if (!origin || !destination) return;
+    const finalOrigin = origin === '__custom__' ? customOrigin.trim() : origin.trim();
+    const finalDestination = destination === '__custom__' ? customDestination.trim() : destination.trim();
+
+    if (!finalOrigin || !finalDestination) {
+      alert('Please select or specify origin and destination cities.');
+      return;
+    }
+
+    if (finalOrigin.toLowerCase() === finalDestination.toLowerCase()) {
+      alert('Origin and Destination cities cannot be identical.');
+      return;
+    }
 
     // Filter out empty stop points
     const validBoarding = boardingPoints.filter((b) => b.name.trim() !== '');
@@ -83,8 +108,8 @@ export default function RouteManagementPage() {
     setCreating(true);
     try {
       await api.post('/routes', {
-        origin: origin.trim(),
-        destination: destination.trim(),
+        origin: finalOrigin,
+        destination: finalDestination,
         distanceKm: Number(distanceKm),
         estimatedDurationMinutes: Number(estimatedDurationMinutes),
         boardingPoints: validBoarding,
@@ -92,8 +117,8 @@ export default function RouteManagementPage() {
       });
       alert('Route created successfully!');
       setShowAddModal(false);
-      setOrigin('');
-      setDestination('');
+      setCustomOrigin('');
+      setCustomDestination('');
       fetchRoutes();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to create route');
@@ -227,29 +252,79 @@ export default function RouteManagementPage() {
             </p>
 
             <form onSubmit={handleCreateRoute} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Origin City</label>
-                  <input
-                    type="text"
+                  <select
                     required
-                    placeholder="e.g. Pune"
                     value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    className="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setOrigin(val);
+                      if (val !== '__custom__' && val) {
+                        handleBoardingChange(0, 'name', `${val} Central Bus Terminal`);
+                        handleBoardingChange(0, 'landmark', 'Platform 1');
+                      }
+                    }}
+                    className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    <option value="">-- Choose Origin City --</option>
+                    {cities.map((city) => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                    <option value="__custom__">➕ + Enter Custom City...</option>
+                  </select>
+
+                  {origin === '__custom__' && (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Type custom origin city name..."
+                      value={customOrigin}
+                      onChange={(e) => {
+                        setCustomOrigin(e.target.value);
+                        handleBoardingChange(0, 'name', `${e.target.value} Main Bus Terminal`);
+                      }}
+                      className="mt-2 w-full text-xs font-semibold px-3 py-2 border border-emerald-300 rounded-lg bg-emerald-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Destination City</label>
-                  <input
-                    type="text"
+                  <select
                     required
-                    placeholder="e.g. Goa"
                     value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    className="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setDestination(val);
+                      if (val !== '__custom__' && val) {
+                        handleDroppingChange(0, 'name', `${val} City Hub`);
+                        handleDroppingChange(0, 'landmark', 'Central Station');
+                      }
+                    }}
+                    className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    <option value="">-- Choose Destination City --</option>
+                    {cities.map((city) => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                    <option value="__custom__">➕ + Enter Custom City...</option>
+                  </select>
+
+                  {destination === '__custom__' && (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Type custom destination city name..."
+                      value={customDestination}
+                      onChange={(e) => {
+                        setCustomDestination(e.target.value);
+                        handleDroppingChange(0, 'name', `${e.target.value} City Hub`);
+                      }}
+                      className="mt-2 w-full text-xs font-semibold px-3 py-2 border border-emerald-300 rounded-lg bg-emerald-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  )}
                 </div>
               </div>
 

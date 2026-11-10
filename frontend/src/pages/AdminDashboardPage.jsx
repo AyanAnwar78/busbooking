@@ -292,6 +292,61 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
+      {/* Fleet Vehicles Overview */}
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap justify-between items-center bg-slate-50 gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Bus className="w-5 h-5 text-emerald-600" />
+              <h3 className="font-extrabold text-slate-900 text-base">Fleet Vehicles ({buses.length})</h3>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Registered operational vehicles available for trip assignment and scheduling.
+            </p>
+          </div>
+          <Link
+            to="/operator/buses"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-3.5 py-2 rounded-xl transition shadow-sm"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>Manage Fleet / Add Bus</span>
+          </Link>
+        </div>
+
+        <div className="p-6">
+          {buses.length === 0 ? (
+            <div className="text-center py-8 text-slate-400 text-xs">
+              No buses currently registered. Click "Manage Fleet / Add Bus" to register a bus.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {buses.map((b) => (
+                <div key={b._id} className="bg-slate-50 rounded-xl border border-slate-200 p-4 hover:border-emerald-400 transition">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        {b.operator?.name || 'Fleet Operator'}
+                      </span>
+                      <h4 className="font-mono font-extrabold text-slate-900 text-base mt-1">{b.busNumber}</h4>
+                    </div>
+                    <span className="text-xs font-bold text-slate-700 bg-white px-2 py-1 rounded-lg border border-slate-200">
+                      {b.totalSeats} Seats
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-500 flex items-center justify-between mt-2 pt-2 border-t border-slate-200/60">
+                    <span>{b.busType}</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      Active in Fleet
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Schedule Trip Modal */}
       {showScheduleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">

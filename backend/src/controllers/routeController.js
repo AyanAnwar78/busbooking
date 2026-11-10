@@ -57,6 +57,58 @@ exports.getRoutes = async (req, res, next) => {
   }
 };
 
+// Get unified list of available cities (standard + created routes)
+exports.getCities = async (req, res, next) => {
+  try {
+    const standardCities = [
+      'Bangalore',
+      'Hyderabad',
+      'Chennai',
+      'Mumbai',
+      'Pune',
+      'Goa',
+      'Delhi',
+      'Jaipur',
+      'Ahmedabad',
+      'Surat',
+      'Kolkata',
+      'Kochi',
+      'Coimbatore',
+      'Mysore',
+      'Tirupati',
+      'Vijayawada',
+      'Visakhapatnam',
+      'Madurai',
+      'Mangalore',
+      'Indore',
+      'Bhopal',
+      'Nagpur',
+      'Lucknow',
+      'Varanasi',
+      'Agra',
+      'Chandigarh',
+      'Dehradun'
+    ];
+
+    const routes = await Route.find({ isActive: true }).select('origin destination');
+    const citySet = new Set(standardCities);
+
+    routes.forEach((r) => {
+      if (r.origin) citySet.add(r.origin.trim());
+      if (r.destination) citySet.add(r.destination.trim());
+    });
+
+    const sortedCities = Array.from(citySet).sort((a, b) => a.localeCompare(b));
+
+    res.status(200).json({
+      success: true,
+      cities: sortedCities
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Get single route by ID
 exports.getRouteById = async (req, res, next) => {
   try {

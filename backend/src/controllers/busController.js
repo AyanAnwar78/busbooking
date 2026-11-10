@@ -40,7 +40,25 @@ exports.createBus = async (req, res, next) => {
       customSeats
     } = req.body;
 
-    const operator = await Operator.findById(operatorId);
+    // Resolve operator:
+    // If the logged-in user is an operator, prioritize their company so the bus always appears in their fleet
+    let assignedOperatorId = operatorId;
+    if (req.user && req.user.role === 'operator' && req.user.operator) {
+      assignedOperatorId = req.user.operator;
+    }
+
+    if (!assignedOperatorId) {
+      const firstOp = await Operator.findOne();
+      if (firstOp) {
+        assignedOperatorId = firstOp._id;
+        if (req.user && req.user.role === 'operator' && !req.user.operator) {
+          const User = require('../models/User');
+          await User.findByIdAndUpdate(req.user._id, { operator: firstOp._id });
+        }
+      }
+    }
+
+    const operator = await Operator.findById(assignedOperatorId);
     if (!operator) {
       return res.status(404).json({ success: false, message: 'Operator not found' });
     }
@@ -50,8 +68,8 @@ exports.createBus = async (req, res, next) => {
       : generate2x2Layout(totalSeats);
 
     const bus = await Bus.create({
-      busNumber,
-      operator: operatorId,
+      busNumber: (busNumber || '').trim().toUpperCase(),
+      operator: assignedOperatorId,
       busType,
       totalSeats: seats.length,
       layoutType,
@@ -69,14 +87,16 @@ exports.createBus = async (req, res, next) => {
         email: req.user.email,
         role: req.user.role
       },
-      details: { busNumber, busType, totalSeats: bus.totalSeats },
+      details: { busNumber: bus.busNumber, busType, totalSeats: bus.totalSeats, operator: operator.name },
       ipAddress: req.ip || ''
     });
+
+    const populatedBus = await Bus.findById(bus._id).populate('operator');
 
     res.status(201).json({
       success: true,
       message: 'Bus created successfully',
-      bus
+      bus: populatedBus
     });
   } catch (error) {
     next(error);
@@ -88,10 +108,13 @@ exports.getBuses = async (req, res, next) => {
   try {
     const filter = { isActive: true };
     if (req.user && req.user.role === 'operator' && req.user.operator) {
-      filter.operator = req.user.operator;
+      const myBusCount = await Bus.countDocuments({ isActive: true, operator: req.user.operator });
+      if (myBusCount > 0) {
+        filter.operator = req.user.operator;
+      }
     }
 
-    const buses = await Bus.find(filter).populate('operator');
+    const buses = await Bus.find(filter).populate('operator').sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       count: buses.length,

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/client';
 import { Search, MapPin, Calendar, Bus, ArrowRight, ShieldCheck, Zap, Users, Sparkles } from 'lucide-react';
 
 export default function HomePage() {
+  const [cities, setCities] = useState([
+    'Bangalore', 'Hyderabad', 'Chennai', 'Mumbai', 'Pune', 'Goa', 'Delhi', 'Jaipur', 'Ahmedabad', 'Kolkata'
+  ]);
   const [origin, setOrigin] = useState('Bangalore');
   const [destination, setDestination] = useState('Hyderabad');
   const [date, setDate] = useState(() => {
@@ -10,6 +14,16 @@ export default function HomePage() {
     return today.toISOString().split('T')[0];
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get('/routes/cities')
+      .then((res) => {
+        if (res.data?.cities && res.data.cities.length > 0) {
+          setCities(res.data.cities);
+        }
+      })
+      .catch((err) => console.log('Using default cities list', err));
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -57,13 +71,11 @@ export default function HomePage() {
                   onChange={(e) => setOrigin(e.target.value)}
                   className="w-full bg-transparent text-sm font-bold text-slate-800 focus:outline-none cursor-pointer"
                 >
-                  <option value="Bangalore">Bangalore</option>
-                  <option value="Hyderabad">Hyderabad</option>
-                  <option value="Chennai">Chennai</option>
-                  <option value="Mumbai">Mumbai</option>
-                  <option value="Pune">Pune</option>
-                  <option value="Delhi">Delhi</option>
-                  <option value="Jaipur">Jaipur</option>
+                  {cities.map((city) => (
+                    <option key={`orig-${city}`} value={city}>
+                      {city}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -80,13 +92,11 @@ export default function HomePage() {
                   onChange={(e) => setDestination(e.target.value)}
                   className="w-full bg-transparent text-sm font-bold text-slate-800 focus:outline-none cursor-pointer"
                 >
-                  <option value="Hyderabad">Hyderabad</option>
-                  <option value="Bangalore">Bangalore</option>
-                  <option value="Chennai">Chennai</option>
-                  <option value="Pune">Pune</option>
-                  <option value="Mumbai">Mumbai</option>
-                  <option value="Jaipur">Jaipur</option>
-                  <option value="Delhi">Delhi</option>
+                  {cities.map((city) => (
+                    <option key={`dest-${city}`} value={city}>
+                      {city}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

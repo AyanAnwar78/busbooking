@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import { Bus, PlusCircle, ArrowLeft, CheckCircle2, ShieldCheck, Sparkles, Filter } from 'lucide-react';
 
 export default function FleetManagementPage() {
+  const { user } = useAuth();
   const [buses, setBuses] = useState([]);
   const [operators, setOperators] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,9 +40,14 @@ export default function FleetManagementPage() {
         api.get('/operators')
       ]);
       setBuses(busRes.data.buses || []);
-      setOperators(optRes.data.operators || []);
-      if (optRes.data.operators?.length > 0) {
-        setOperatorId(optRes.data.operators[0]._id);
+      const loadedOperators = optRes.data.operators || [];
+      setOperators(loadedOperators);
+
+      if (user?.role === 'operator' && user?.operator) {
+        const opId = typeof user.operator === 'object' ? user.operator._id : user.operator;
+        setOperatorId(opId);
+      } else if (loadedOperators.length > 0 && !operatorId) {
+        setOperatorId(loadedOperators[0]._id);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load fleet');
@@ -201,20 +208,29 @@ export default function FleetManagementPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Operator</label>
-                <select
-                  required
-                  value={operatorId}
-                  onChange={(e) => setOperatorId(e.target.value)}
-                  className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-                >
-                  <option value="">-- Select Fleet Operator --</option>
-                  {operators.map((opt) => (
-                    <option key={opt._id} value={opt._id} className="text-slate-800 font-semibold py-1">
-                      {opt.name} ({opt.licenseNumber || 'Licensed'})
-                    </option>
-                  ))}
-                </select>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Fleet Operator</label>
+                {user?.role === 'operator' ? (
+                  <div className="w-full text-xs font-semibold text-emerald-800 px-3 py-2.5 border border-emerald-200 rounded-xl bg-emerald-50 flex items-center justify-between">
+                    <span>🏢 {operators.find((o) => o._id === operatorId)?.name || 'Your Registered Operator Profile'}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      Operator Account
+                    </span>
+                  </div>
+                ) : (
+                  <select
+                    required
+                    value={operatorId}
+                    onChange={(e) => setOperatorId(e.target.value)}
+                    className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    <option value="">-- Select Fleet Operator --</option>
+                    {operators.map((opt) => (
+                      <option key={opt._id} value={opt._id} className="text-slate-800 font-semibold py-1">
+                        {opt.name} ({opt.licenseNumber || 'Licensed'})
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
