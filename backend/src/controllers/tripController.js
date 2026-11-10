@@ -71,6 +71,44 @@ exports.searchTrips = async (req, res, next) => {
       trips = trips.filter((t) => t.bus && t.bus.busType === busType);
     }
 
+    // If no buses available on that specific date, automatically fetch upcoming departures after that date
+    let isAlternativeDate = false;
+    let nextAvailableDate = null;
+
+    if (trips.length === 0 && date) {
+      const searchDate = new Date(date);
+      const endOfDay = new Date(searchDate.setHours(23, 59, 59, 999));
+
+      const upcomingFilter = {
+        route: { $in: routeIds },
+        status: { $in: ['SCHEDULED', 'BOARDING'] },
+        departureTime: { $gt: endOfDay }
+      };
+
+      if (operatorId) {
+        upcomingFilter.operator = operatorId;
+      }
+
+      let upcomingQuery = Trip.find(upcomingFilter)
+        .populate('route')
+        .populate('bus')
+        .populate('operator')
+        .sort({ departureTime: 1 })
+        .limit(10);
+
+      let upcomingTrips = await upcomingQuery;
+
+      if (busType) {
+        upcomingTrips = upcomingTrips.filter((t) => t.bus && t.bus.busType === busType);
+      }
+
+      if (upcomingTrips.length > 0) {
+        trips = upcomingTrips;
+        isAlternativeDate = true;
+        nextAvailableDate = new Date(upcomingTrips[0].departureTime).toISOString().split('T')[0];
+      }
+    }
+
     // Add computed duration in hours & minutes for easy UI display
     const formattedTrips = trips.map((trip) => {
       const departure = new Date(trip.departureTime);
@@ -89,7 +127,10 @@ exports.searchTrips = async (req, res, next) => {
     res.status(200).json({
       success: true,
       count: formattedTrips.length,
-      trips: formattedTrips
+      trips: formattedTrips,
+      isAlternativeDate,
+      requestedDate: date || null,
+      nextAvailableDate
     });
   } catch (error) {
     next(error);
