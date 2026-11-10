@@ -32,9 +32,69 @@ export default function HomePage() {
   };
 
   const popularRoutes = [
-    { origin: 'Bangalore', dest: 'Hyderabad', duration: '9h', fare: '₹1,100' },
-    { origin: 'Bangalore', dest: 'Chennai', duration: '6h 30m', fare: '₹750' },
-    { origin: 'Mumbai', dest: 'Pune', duration: '3h 30m', fare: '₹450' }
+    {
+      origin: 'Bangalore',
+      dest: 'Hyderabad',
+      duration: '9h',
+      fare: '₹1,100',
+      busType: 'Volvo Multi-Axle AC Sleeper',
+      image: 'https://i.pinimg.com/736x/48/3b/82/483b828dbad6d4a4c3e328df649b63bf.jpg'
+    },
+    {
+      origin: 'Bangalore',
+      dest: 'Chennai',
+      duration: '6h 30m',
+      fare: '₹750',
+      busType: 'Scania Executive Seater',
+      image: 'https://i.pinimg.com/736x/30/53/b3/3053b3bdafdd8312e2be53501a80d492.jpg'
+    },
+    {
+      origin: 'Mumbai',
+      dest: 'Pune',
+      duration: '3h 30m',
+      fare: '₹450',
+      busType: 'Mercedes Intercity Express',
+      image: 'https://i.pinimg.com/1200x/6b/23/8a/6b238a7c0361534c6c428c38c9c83831.jpg'
+    },
+    {
+      origin: 'Delhi',
+      dest: 'Jaipur',
+      duration: '5h',
+      fare: '₹650',
+      busType: 'BharatBenz Ultra Luxury Coach',
+      image: 'https://i.pinimg.com/736x/be/87/5a/be875a311068dc900e505ada4839efeb.jpg'
+    }
+  ];
+
+  const fleetShowcase = [
+    {
+      title: 'Volvo B11R Multi-Axle Sleeper',
+      tag: 'Ultra Luxury Sleeper',
+      image: 'https://i.pinimg.com/736x/48/3b/82/483b828dbad6d4a4c3e328df649b63bf.jpg',
+      description: 'Ergonomic individual berths, ambient soft lighting, noise-cancellation cabin, and high-speed USB-C charging points.',
+      features: 'Full Sleeper • Individual AC • WiFi'
+    },
+    {
+      title: 'Scania Metrolink HD Coach',
+      tag: 'Executive Class',
+      image: 'https://i.pinimg.com/736x/30/53/b3/3053b3bdafdd8312e2be53501a80d492.jpg',
+      description: 'Plush 2x2 calf-supported recliner seats with electronic back adjusters and individual reading illumination.',
+      features: 'Push-back Seater • Air Suspension'
+    },
+    {
+      title: 'Mercedes-Benz Intercity Glider',
+      tag: 'High-Speed Intercity',
+      image: 'https://i.pinimg.com/1200x/6b/23/8a/6b238a7c0361534c6c428c38c9c83831.jpg',
+      description: 'Aerodynamic grand touring body engineered for ultra-smooth highway cruising and maximum passenger safety.',
+      features: 'Panoramic Windows • Emergency Exits'
+    },
+    {
+      title: 'BharatBenz High-Deck Express',
+      tag: 'Regional Touring',
+      image: 'https://i.pinimg.com/736x/be/87/5a/be875a311068dc900e505ada4839efeb.jpg',
+      description: 'High-deck vantage seating with large luggage compartments and GPS-tracked intelligent climate control.',
+      features: 'Large Luggage Hold • CCTV Security'
+    }
   ];
 
   return (
@@ -131,14 +191,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Quick Route Shortcuts */}
+      {/* Quick Route Shortcuts with Fleet Photos */}
       <section>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-slate-900">Featured Popular Routes</h2>
-          <span className="text-xs font-semibold text-emerald-600">Daily Regular Services</span>
+        <div className="flex flex-wrap justify-between items-center mb-6 gap-2">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Featured Popular Routes</h2>
+            <p className="text-xs text-slate-500">Popular intercity travel corridors served daily by luxury fleets.</p>
+          </div>
+          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+            Daily Express Services
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {popularRoutes.map((rt, i) => (
             <div
               key={i}
@@ -147,21 +212,101 @@ export default function HomePage() {
                 setDestination(rt.dest);
                 navigate(`/search?origin=${encodeURIComponent(rt.origin)}&destination=${encodeURIComponent(rt.dest)}&date=${date}`);
               }}
-              className="group cursor-pointer bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-emerald-500/50 transition-all duration-200"
+              className="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-emerald-500 transition-all duration-300 flex flex-col"
             >
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
-                  <span>{rt.origin}</span>
-                  <ArrowRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition" />
-                  <span>{rt.dest}</span>
-                </div>
-                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
+              <div className="relative h-36 overflow-hidden bg-slate-900">
+                <img
+                  src={rt.image}
+                  alt={`${rt.origin} to ${rt.dest}`}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                <span className="absolute bottom-2.5 left-3 text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/20">
+                  {rt.busType}
+                </span>
+                <span className="absolute top-2.5 right-3 text-xs font-extrabold text-emerald-300 bg-emerald-950/90 px-2.5 py-1 rounded-full border border-emerald-500/30">
                   {rt.fare}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-xs text-slate-500">
-                <span>Est. Duration: {rt.duration}</span>
-                <span className="font-semibold text-emerald-600 group-hover:underline">Select & Book →</span>
+
+              <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-slate-900 font-extrabold text-sm">
+                    <span>{rt.origin}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-emerald-600 group-hover:translate-x-1 transition" />
+                    <span>{rt.dest}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+                  <span>⏱️ {rt.duration}</span>
+                  <span className="font-bold text-emerald-600 group-hover:underline">Book Seat →</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Fleet Showcase Gallery */}
+      <section className="space-y-6">
+        <div className="flex flex-wrap justify-between items-end gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 mb-2">
+              <Sparkles className="w-3.5 h-3.5" /> Premium Travel Standards
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              Next-Generation Fleet Experience
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">
+              Top-tier multi-axle buses engineered for comfort, safety, and smooth long-distance transit.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setOrigin('Bangalore');
+              setDestination('Hyderabad');
+              navigate(`/search?origin=Bangalore&destination=Hyderabad&date=${date}`);
+            }}
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+          >
+            <span>Explore All Fleet Routes</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {fleetShowcase.map((item, index) => (
+            <div
+              key={index}
+              className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-emerald-400 transition-all duration-300 flex flex-col"
+            >
+              <div className="relative h-44 overflow-hidden bg-slate-900">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                <span className="absolute bottom-2.5 left-3 text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/20">
+                  {item.tag}
+                </span>
+              </div>
+              <div className="p-4 flex-1 flex flex-col justify-between space-y-2.5">
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm group-hover:text-emerald-700 transition">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-emerald-700">
+                  <span>{item.features}</span>
+                  <span className="group-hover:translate-x-1 transition font-bold">Book ➔</span>
+                </div>
               </div>
             </div>
           ))}

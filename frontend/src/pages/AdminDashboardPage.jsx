@@ -16,6 +16,13 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+const BUS_IMAGES = [
+  'https://i.pinimg.com/736x/48/3b/82/483b828dbad6d4a4c3e328df649b63bf.jpg',
+  'https://i.pinimg.com/736x/30/53/b3/3053b3bdafdd8312e2be53501a80d492.jpg',
+  'https://i.pinimg.com/1200x/6b/23/8a/6b238a7c0361534c6c428c38c9c83831.jpg',
+  'https://i.pinimg.com/736x/be/87/5a/be875a311068dc900e505ada4839efeb.jpg'
+];
+
 export default function AdminDashboardPage() {
   const { user, isAdmin } = useAuth();
   const [stats, setStats] = useState(null);
@@ -320,19 +327,35 @@ export default function AdminDashboardPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {buses.map((b) => (
-                <div key={b._id} className="bg-slate-50 rounded-xl border border-slate-200 p-4 hover:border-emerald-400 transition">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                        {b.operator?.name || 'Fleet Operator'}
+              {buses.map((b, bIdx) => (
+                <div key={b._id} className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden p-4 hover:border-emerald-400 hover:shadow-md transition flex flex-col justify-between">
+                  <div>
+                    <div className="relative h-28 rounded-xl overflow-hidden mb-3 bg-slate-900 -mx-1 -mt-1">
+                      <img
+                        src={BUS_IMAGES[bIdx % BUS_IMAGES.length]}
+                        alt={b.busNumber}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                      <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-md px-2 py-0.5 rounded">
+                        {b.busType}
                       </span>
-                      <h4 className="font-mono font-extrabold text-slate-900 text-base mt-1">{b.busNumber}</h4>
                     </div>
-                    <span className="text-xs font-bold text-slate-700 bg-white px-2 py-1 rounded-lg border border-slate-200">
-                      {b.totalSeats} Seats
-                    </span>
+
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          {b.operator?.name || 'Fleet Operator'}
+                        </span>
+                        <h4 className="font-mono font-extrabold text-slate-900 text-base mt-1">{b.busNumber}</h4>
+                      </div>
+                      <span className="text-xs font-bold text-slate-700 bg-white px-2 py-1 rounded-lg border border-slate-200">
+                        {b.totalSeats} Seats
+                      </span>
+                    </div>
                   </div>
+
                   <div className="text-xs text-slate-500 flex items-center justify-between mt-2 pt-2 border-t border-slate-200/60">
                     <span>{b.busType}</span>
                     <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">

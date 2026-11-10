@@ -4,6 +4,13 @@ import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { Bus, PlusCircle, ArrowLeft, CheckCircle2, ShieldCheck, Sparkles, Filter } from 'lucide-react';
 
+const BUS_IMAGES = [
+  'https://i.pinimg.com/736x/48/3b/82/483b828dbad6d4a4c3e328df649b63bf.jpg',
+  'https://i.pinimg.com/736x/30/53/b3/3053b3bdafdd8312e2be53501a80d492.jpg',
+  'https://i.pinimg.com/1200x/6b/23/8a/6b238a7c0361534c6c428c38c9c83831.jpg',
+  'https://i.pinimg.com/736x/be/87/5a/be875a311068dc900e505ada4839efeb.jpg'
+];
+
 export default function FleetManagementPage() {
   const { user } = useAuth();
   const [buses, setBuses] = useState([]);
@@ -138,29 +145,44 @@ export default function FleetManagementPage() {
           <div className="p-4 bg-rose-50 text-rose-700 text-xs rounded-xl">{error}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {buses.map((bus) => (
+            {buses.map((bus, busIdx) => (
               <div
                 key={bus._id}
-                className="bg-slate-50 hover:bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-400 transition"
+                className="bg-slate-50 hover:bg-white rounded-2xl border border-slate-200 overflow-hidden p-5 shadow-sm hover:shadow-md hover:border-emerald-400 transition flex flex-col justify-between"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      {bus.operator?.name || 'Operator'}
+                <div>
+                  <div className="relative h-36 rounded-xl overflow-hidden mb-3 bg-slate-900 -mx-1 -mt-1">
+                    <img
+                      src={BUS_IMAGES[busIdx % BUS_IMAGES.length]}
+                      alt={bus.busNumber}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                    <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-md px-2.5 py-0.5 rounded border border-white/20">
+                      {bus.busType}
                     </span>
-                    <h3 className="text-lg font-extrabold font-mono text-slate-900 mt-1">{bus.busNumber}</h3>
                   </div>
-                  <span className="text-xs font-bold text-slate-700 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
-                    {bus.totalSeats} Seats
-                  </span>
-                </div>
 
-                <div className="text-xs text-slate-600 space-y-1 mb-4">
-                  <div>
-                    Type: <strong className="text-slate-800">{bus.busType}</strong>
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        {bus.operator?.name || 'Operator'}
+                      </span>
+                      <h3 className="text-lg font-extrabold font-mono text-slate-900 mt-1">{bus.busNumber}</h3>
+                    </div>
+                    <span className="text-xs font-bold text-slate-700 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                      {bus.totalSeats} Seats
+                    </span>
                   </div>
-                  <div>
-                    Layout: <strong className="text-slate-800">{bus.layoutType}</strong>
+
+                  <div className="text-xs text-slate-600 space-y-1 mb-4">
+                    <div>
+                      Type: <strong className="text-slate-800">{bus.busType}</strong>
+                    </div>
+                    <div>
+                      Layout: <strong className="text-slate-800">{bus.layoutType}</strong>
+                    </div>
                   </div>
                 </div>
 

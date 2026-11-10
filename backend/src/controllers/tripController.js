@@ -4,6 +4,34 @@ const Route = require('../models/Route');
 const Operator = require('../models/Operator');
 const AuditLog = require('../models/AuditLog');
 
+// Helper to build flexible regex for city names with common metropolitan aliases/variations
+const buildCityRegex = (cityName) => {
+  const clean = (cityName || '').trim();
+  const escaped = clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (/^(new\s+delhi|delhi)$/i.test(clean)) {
+    return /^\s*(new\s+delhi|delhi)\s*$/i;
+  }
+  if (/^(bangalore|bengaluru)$/i.test(clean)) {
+    return /^\s*(bangalore|bengaluru)\s*$/i;
+  }
+  if (/^(chennai|madras)$/i.test(clean)) {
+    return /^\s*(chennai|madras)\s*$/i;
+  }
+  if (/^(mumbai|bombay)$/i.test(clean)) {
+    return /^\s*(mumbai|bombay)\s*$/i;
+  }
+  if (/^(kolkata|calcutta)$/i.test(clean)) {
+    return /^\s*(kolkata|calcutta)\s*$/i;
+  }
+  if (/^(prayagraj|allahabad)$/i.test(clean)) {
+    return /^\s*(prayagraj|allahabad)\s*$/i;
+  }
+  if (/^(varanasi|banaras|kashi)$/i.test(clean)) {
+    return /^\s*(varanasi|banaras|kashi)\s*$/i;
+  }
+  return new RegExp('^\\s*' + escaped + '\\s*$', 'i');
+};
+
 // Search trips by origin, destination, and travel date
 exports.searchTrips = async (req, res, next) => {
   try {
@@ -16,10 +44,10 @@ exports.searchTrips = async (req, res, next) => {
       });
     }
 
-    // Find routes matching origin and destination (case-insensitive regex)
+    // Find routes matching origin and destination (case-insensitive regex with smart city alias matching)
     const matchingRoutes = await Route.find({
-      origin: { $regex: new RegExp(`^${origin.trim()}$`, 'i') },
-      destination: { $regex: new RegExp(`^${destination.trim()}$`, 'i') },
+      origin: { $regex: buildCityRegex(origin) },
+      destination: { $regex: buildCityRegex(destination) },
       isActive: true
     }).select('_id');
 

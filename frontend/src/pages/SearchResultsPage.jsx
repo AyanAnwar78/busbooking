@@ -3,6 +3,13 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { Bus, Clock, Calendar, ArrowRight, Filter, AlertCircle, Sparkles, MapPin } from 'lucide-react';
 
+const BUS_IMAGES = [
+  'https://i.pinimg.com/736x/48/3b/82/483b828dbad6d4a4c3e328df649b63bf.jpg',
+  'https://i.pinimg.com/736x/30/53/b3/3053b3bdafdd8312e2be53501a80d492.jpg',
+  'https://i.pinimg.com/1200x/6b/23/8a/6b238a7c0361534c6c428c38c9c83831.jpg',
+  'https://i.pinimg.com/736x/be/87/5a/be875a311068dc900e505ada4839efeb.jpg'
+];
+
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   const origin = searchParams.get('origin') || '';
@@ -224,7 +231,7 @@ export default function SearchResultsPage() {
               </div>
             </div>
           ) : (
-            filteredTrips.map((trip) => {
+            filteredTrips.map((trip, tripIndex) => {
               const depDate = new Date(trip.departureTime);
               const arrDate = new Date(trip.arrivalTime);
 
@@ -234,16 +241,24 @@ export default function SearchResultsPage() {
                   className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-emerald-400 transition"
                 >
                   <div className="flex flex-wrap justify-between items-start gap-4 pb-4 border-b border-slate-100">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 text-base">{trip.operator?.name || 'Bus Operator'}</span>
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          ★ {trip.operator?.rating || 4.5}
-                        </span>
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <img
+                        src={BUS_IMAGES[tripIndex % BUS_IMAGES.length]}
+                        alt={trip.bus?.busType || 'Bus'}
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-slate-200 shadow-sm flex-shrink-0"
+                        loading="lazy"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 text-base">{trip.operator?.name || 'Bus Operator'}</span>
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ★ {trip.operator?.rating || 4.5}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {trip.bus?.busType} • Vehicle #{trip.bus?.busNumber}
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {trip.bus?.busType} • Vehicle #{trip.bus?.busNumber}
-                      </p>
                     </div>
 
                     <div className="text-right">
