@@ -28,13 +28,20 @@ exports.register = async (req, res, next) => {
       assignedRole = role;
     }
 
+    let assignedOperator = operatorId || null;
+    if (assignedRole === 'operator' && !assignedOperator) {
+      const Operator = require('../models/Operator');
+      const firstOp = await Operator.findOne();
+      if (firstOp) assignedOperator = firstOp._id;
+    }
+
     const user = await User.create({
       name,
       email,
       password,
       phone,
       role: assignedRole,
-      operator: operatorId || null
+      operator: assignedOperator
     });
 
     const token = signToken(user._id);

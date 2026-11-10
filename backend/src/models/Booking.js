@@ -71,6 +71,10 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
+    discountDetails: {
+      couponCode: { type: String, default: '' },
+      discountAmount: { type: Number, default: 0 }
+    },
     paymentStatus: {
       type: String,
       enum: ['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED'],

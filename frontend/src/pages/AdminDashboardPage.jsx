@@ -59,6 +59,28 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleOpenScheduleModal = async () => {
+    setShowScheduleModal(true);
+    try {
+      const [busRes, routeRes] = await Promise.all([
+        api.get('/buses').catch(() => ({ data: { buses: [] } })),
+        api.get('/routes').catch(() => ({ data: { routes: [] } }))
+      ]);
+      const loadedBuses = busRes.data?.buses || [];
+      const loadedRoutes = routeRes.data?.routes || [];
+      setBuses(loadedBuses);
+      setRoutes(loadedRoutes);
+      if (loadedBuses.length > 0 && (!selectedBus || !loadedBuses.find(b => b._id === selectedBus))) {
+        setSelectedBus(loadedBuses[0]._id);
+      }
+      if (loadedRoutes.length > 0 && (!selectedRoute || !loadedRoutes.find(r => r._id === selectedRoute))) {
+        setSelectedRoute(loadedRoutes[0]._id);
+      }
+    } catch (err) {
+      console.error('Error refreshing modal buses/routes:', err);
+    }
+  };
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -119,7 +141,7 @@ export default function AdminDashboardPage() {
           </Link>
 
           <button
-            onClick={() => setShowScheduleModal(true)}
+            onClick={handleOpenScheduleModal}
             className="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl shadow-md shadow-emerald-600/30 transition"
           >
             <PlusCircle className="w-4 h-4" />
@@ -281,14 +303,18 @@ export default function AdminDashboardPage() {
 
             <form onSubmit={handleCreateTrip} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Select Bus</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Select Bus {buses.length > 0 && <span className="text-slate-400 font-normal">({buses.length} in fleet)</span>}
+                </label>
                 <select
                   required
                   value={selectedBus}
                   onChange={(e) => setSelectedBus(e.target.value)}
                   className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
-                  <option value="" disabled>-- Select a Vehicle from Fleet --</option>
+                  <option value="">
+                    {buses.length > 0 ? '-- Select a Vehicle from Fleet --' : 'No buses available in fleet'}
+                  </option>
                   {buses.map((b) => (
                     <option key={b._id} value={b._id} className="text-slate-800 font-semibold py-1">
                       {b.busNumber} • {b.busType} ({b.totalSeats} seats)
@@ -296,19 +322,26 @@ export default function AdminDashboardPage() {
                   ))}
                 </select>
                 {buses.length === 0 && (
-                  <p className="text-[11px] text-amber-600 mt-1 font-medium">No active buses found in fleet.</p>
+                  <div className="flex items-center justify-between text-[11px] text-amber-600 mt-1 font-medium">
+                    <span>No active buses in database.</span>
+                    <Link to="/fleet" className="underline font-bold text-emerald-600 hover:text-emerald-700">Add Bus in Fleet →</Link>
+                  </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Select Route</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Select Route {routes.length > 0 && <span className="text-slate-400 font-normal">({routes.length} corridors)</span>}
+                </label>
                 <select
                   required
                   value={selectedRoute}
                   onChange={(e) => setSelectedRoute(e.target.value)}
                   className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
-                  <option value="" disabled>-- Select Route Corridor --</option>
+                  <option value="">
+                    {routes.length > 0 ? '-- Select Route Corridor --' : 'No routes available'}
+                  </option>
                   {routes.map((r) => (
                     <option key={r._id} value={r._id} className="text-slate-800 font-semibold py-1">
                       {r.origin} → {r.destination} ({r.distanceKm} km, {Math.floor(r.estimatedDurationMinutes / 60)}h)
@@ -316,7 +349,10 @@ export default function AdminDashboardPage() {
                   ))}
                 </select>
                 {routes.length === 0 && (
-                  <p className="text-[11px] text-amber-600 mt-1 font-medium">No active routes found.</p>
+                  <div className="flex items-center justify-between text-[11px] text-amber-600 mt-1 font-medium">
+                    <span>No active routes found in database.</span>
+                    <Link to="/routes" className="underline font-bold text-emerald-600 hover:text-emerald-700">Add Route in Routes →</Link>
+                  </div>
                 )}
               </div>
 

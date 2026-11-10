@@ -4,15 +4,16 @@ const mongoose = require('mongoose');
 let mongoServer;
 
 beforeAll(async () => {
+  const binaryOpts = {};
+  if (process.env.MONGOD_PATH) {
+    binaryOpts.systemBinary = process.env.MONGOD_PATH;
+  }
   mongoServer = await MongoMemoryServer.create({
-    binary: {
-      version: '8.0.11',
-      systemBinary: 'C:\\Program Files\\MongoDB\\Server\\8.0\\bin\\mongod.exe'
-    }
+    binary: binaryOpts
   });
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
-});
+}, 60000);
 
 afterAll(async () => {
   if (mongoose.connection) {

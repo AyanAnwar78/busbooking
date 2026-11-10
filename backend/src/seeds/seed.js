@@ -37,7 +37,8 @@ const generateSeats = (totalSeats = 40, type = 'seater') => {
 const seedDatabase = async () => {
   try {
     console.log('Connecting to MongoDB for seeding...');
-    await mongoose.connect(MONGO_URI);
+    const conn = await mongoose.connect(MONGO_URI);
+    console.log(`[Seed Script] Connected to: ${conn.connection.host} (Database: ${conn.connection.name})`);
     console.log('Clearing existing collections...');
 
     await Promise.all([

@@ -11,7 +11,8 @@ exports.createBooking = async (req, res, next) => {
       boardingPoint,
       droppingPoint,
       contactPhone,
-      contactEmail
+      contactEmail,
+      couponCode
     } = req.body;
 
     const booking = await bookingService.createBooking({
@@ -23,6 +24,7 @@ exports.createBooking = async (req, res, next) => {
       droppingPoint,
       contactPhone,
       contactEmail,
+      couponCode,
       ipAddress: req.ip || ''
     });
 

@@ -22,6 +22,24 @@ export default function SeatSelectPage() {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [conflictError, setConflictError] = useState('');
 
+  // Promotional Coupon & Hold Timer
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [holdTimer, setHoldTimer] = useState(600);
+
+  useEffect(() => {
+    let interval = null;
+    if (selectedSeats.length > 0) {
+      interval = setInterval(() => {
+        setHoldTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    } else {
+      setHoldTimer(600);
+    }
+    return () => clearInterval(interval);
+  }, [selectedSeats.length > 0]);
+
   useEffect(() => {
     fetchTripDetails();
   }, [id]);
@@ -92,11 +110,43 @@ export default function SeatSelectPage() {
     });
   };
 
-  // Compute total amount
-  const totalAmount = selectedSeats.reduce((sum, seatNo) => {
+  // Compute subtotal and total amount after discounts
+  const subtotal = selectedSeats.reduce((sum, seatNo) => {
     const sObj = trip?.seats?.find((s) => s.seatNumber === seatNo);
     return sum + (sObj?.fare || trip?.baseFare || 0);
   }, 0);
+
+  const totalAmount = Math.max(0, subtotal - discountAmount);
+
+  const handleApplyCoupon = (code) => {
+    const codeToApply = (code || couponInput).trim().toUpperCase();
+    if (!codeToApply) return;
+
+    if (codeToApply === 'BUSGO10') {
+      const disc = Math.round(subtotal * 0.1);
+      setDiscountAmount(disc);
+      setAppliedCoupon('BUSGO10');
+      setCouponInput('BUSGO10');
+    } else if (codeToApply === 'SUPER50') {
+      const disc = Math.min(50, subtotal);
+      setDiscountAmount(disc);
+      setAppliedCoupon('SUPER50');
+      setCouponInput('SUPER50');
+    } else if (codeToApply === 'FIRSTTRIP') {
+      const disc = Math.min(150, subtotal);
+      setDiscountAmount(disc);
+      setAppliedCoupon('FIRSTTRIP');
+      setCouponInput('FIRSTTRIP');
+    } else {
+      alert('Invalid coupon code. Try BUSGO10, SUPER50, or FIRSTTRIP');
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon('');
+    setDiscountAmount(0);
+    setCouponInput('');
+  };
 
   const handleBookTicket = async (e) => {
     e.preventDefault();
@@ -147,7 +197,8 @@ export default function SeatSelectPage() {
         boardingPoint: boardingObj,
         droppingPoint: droppingObj,
         contactPhone,
-        contactEmail
+        contactEmail,
+        couponCode: appliedCoupon
       });
 
       const confirmedPNR = res.data.booking.pnr;
@@ -250,6 +301,15 @@ export default function SeatSelectPage() {
             </span>
           </div>
 
+          {selectedSeats.length > 0 && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between">
+              <span>⏱️ Seats held for checkout:</span>
+              <span className="font-mono text-sm font-extrabold text-emerald-700">
+                {Math.floor(holdTimer / 60)}:{String(holdTimer % 60).padStart(2, '0')}
+              </span>
+            </div>
+          )}
+
           <SeatLayout
             seats={trip.seats || []}
             selectedSeats={selectedSeats}
@@ -264,8 +324,14 @@ export default function SeatSelectPage() {
             className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6"
           >
             <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-base">Booking Summary</h3>
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Booking Summary</h3>
+                <span className="text-xs text-slate-500">{selectedSeats.length} Seat(s) Selected</span>
+              </div>
               <div className="text-right">
+                {discountAmount > 0 && (
+                  <div className="text-xs text-slate-400 line-through">₹{subtotal}</div>
+                )}
                 <span className="text-xs text-slate-400">Total Payable:</span>
                 <div className="text-xl font-extrabold text-emerald-600">₹{totalAmount}</div>
               </div>
@@ -283,7 +349,7 @@ export default function SeatSelectPage() {
                   onChange={(e) => setSelectedBoarding(e.target.value)}
                   className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
-                  <option value="" disabled>-- Select Boarding Point --</option>
+                  <option value="">-- Select Boarding Point --</option>
                   {trip.route?.boardingPoints?.map((bp, i) => (
                     <option key={i} value={bp.name} className="text-slate-800 font-semibold py-1">
                       {bp.name} {bp.landmark ? `(${bp.landmark})` : ''}
@@ -302,7 +368,7 @@ export default function SeatSelectPage() {
                   onChange={(e) => setSelectedDropping(e.target.value)}
                   className="w-full text-xs font-bold text-slate-800 px-3 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
-                  <option value="" disabled>-- Select Dropping Point --</option>
+                  <option value="">-- Select Dropping Point --</option>
                   {trip.route?.droppingPoints?.map((dp, i) => (
                     <option key={i} value={dp.name} className="text-slate-800 font-semibold py-1">
                       {dp.name} {dp.landmark ? `(${dp.landmark})` : ''}
@@ -372,6 +438,73 @@ export default function SeatSelectPage() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </div>
+
+            {/* Promotional Coupon Code */}
+            <div className="pt-4 border-t border-slate-100">
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+                Have a Promo Discount Code?
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. BUSGO10, SUPER50..."
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  disabled={!!appliedCoupon}
+                  className="flex-1 text-xs font-mono font-bold uppercase px-3 py-2 border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                {appliedCoupon ? (
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl transition"
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon()}
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition"
+                  >
+                    Apply
+                  </button>
+                )}
+              </div>
+
+              {!appliedCoupon && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon('BUSGO10')}
+                    className="text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 transition"
+                  >
+                    🏷️ BUSGO10 (10% OFF)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon('SUPER50')}
+                    className="text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 transition"
+                  >
+                    🏷️ SUPER50 (₹50 OFF)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon('FIRSTTRIP')}
+                    className="text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 transition"
+                  >
+                    🏷️ FIRSTTRIP (₹150 OFF)
+                  </button>
+                </div>
+              )}
+
+              {appliedCoupon && (
+                <div className="mt-2 text-xs font-bold text-emerald-700 flex items-center justify-between bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
+                  <span>Coupon '{appliedCoupon}' Applied!</span>
+                  <span>-₹{discountAmount}</span>
                 </div>
               )}
             </div>

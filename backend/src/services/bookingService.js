@@ -26,6 +26,7 @@ const createBooking = async ({
   droppingPoint,
   contactPhone,
   contactEmail,
+  couponCode = '',
   ipAddress = ''
 }) => {
   if (!seatNumbers || seatNumbers.length === 0) {
@@ -65,11 +66,30 @@ const createBooking = async ({
   }
 
   // Calculate total amount based on individual seat fares
-  let totalAmount = 0;
+  let subtotal = 0;
   for (const seatNo of seatNumbers) {
     const seatObj = tripSeatMap.get(seatNo);
-    totalAmount += seatObj.fare || trip.baseFare;
+    subtotal += seatObj.fare || trip.baseFare;
   }
+
+  // Calculate promotional discount if couponCode is provided
+  let discountAmount = 0;
+  let appliedCoupon = '';
+  if (couponCode) {
+    const clean = couponCode.trim().toUpperCase();
+    if (clean === 'BUSGO10') {
+      discountAmount = Math.round(subtotal * 0.1); // 10% off
+      appliedCoupon = 'BUSGO10';
+    } else if (clean === 'SUPER50') {
+      discountAmount = Math.min(50, subtotal);
+      appliedCoupon = 'SUPER50';
+    } else if (clean === 'FIRSTTRIP') {
+      discountAmount = Math.min(150, subtotal);
+      appliedCoupon = 'FIRSTTRIP';
+    }
+  }
+
+  const totalAmount = Math.max(0, subtotal - discountAmount);
 
   const pnr = generatePNR();
   const bookingObjectId = new mongoose.Types.ObjectId();
@@ -141,6 +161,10 @@ const createBooking = async ({
       boardingPoint: resolvedBoardingPoint,
       droppingPoint: resolvedDroppingPoint,
       totalAmount,
+      discountDetails: {
+        couponCode: appliedCoupon,
+        discountAmount
+      },
       paymentStatus: 'PAID',
       status: 'CONFIRMED',
       contactPhone,
