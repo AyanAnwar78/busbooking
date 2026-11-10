@@ -190,10 +190,22 @@ exports.createTrip = async (req, res, next) => {
 
     const tripCode = `TRIP-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 
+    // Determine the operator:
+    // If user is an operator, ensure their company is assigned; otherwise use bus's operator
+    let targetOperatorId = (bus.operator && bus.operator._id) ? bus.operator._id : bus.operator;
+    if (req.user && req.user.role === 'operator' && req.user.operator) {
+      targetOperatorId = req.user.operator;
+    }
+    if (!targetOperatorId) {
+      const Operator = require('../models/Operator');
+      const firstOp = await Operator.findOne();
+      if (firstOp) targetOperatorId = firstOp._id;
+    }
+
     const tripData = {
       tripCode,
       bus: bus._id,
-      operator: bus.operator._id,
+      operator: targetOperatorId,
       route: route._id,
       departureTime: new Date(departureTime),
       arrivalTime: new Date(arrivalTime),
